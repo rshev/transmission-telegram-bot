@@ -236,19 +236,6 @@ bot.onText(/\/addtorrent|Add torrent/, function (msg) {
     userStates[chatId] = 'add';
 });
 
-bot.onText(/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/, function (msg) {
-    if (config.bot.users.indexOf(msg.from.id) == -1) return;
-    var chatId = msg.chat.id;
-
-    var torrentAction = userStates[chatId] || '';
-    if (torrentAction == 'add')
-        engine.addTorrent(msg.text, (details) => {
-            bot.sendMessage(chatId, details, engine.listOfCommandsKeyboard);
-        }, (err) => {
-            bot.sendMessage(chatId, err, engine.listOfCommandsKeyboard);
-        });
-});
-
 // Cancel Operation
 bot.onText(/Cancel/, function (msg) {
     if (config.bot.users.indexOf(msg.from.id) == -1) return;
@@ -345,6 +332,18 @@ bot.onText(/\/help|❔ Help/, function (msg) {
     var chatId = msg.chat.id;
 
     bot.sendMessage(chatId, engine.helpMsg, engine.listOfCommandsKeyboard);
+});
+
+// Torrent url (intentionally last, to not care about action)
+bot.onText(/[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/, function (msg) {
+    if (config.bot.users.indexOf(msg.from.id) == -1) return;
+    var chatId = msg.chat.id;
+
+    engine.addTorrent(msg.text, (details) => {
+        bot.sendMessage(chatId, details, engine.listOfCommandsKeyboard);
+    }, (err) => {
+        bot.sendMessage(chatId, err, engine.listOfCommandsKeyboard);
+    });
 });
 
 // Callback when a torrent is completed
